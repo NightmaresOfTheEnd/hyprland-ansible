@@ -34,6 +34,9 @@
       when: has_nvidia_gpu | default(false)
       tags: [nvidia, drivers]
 
+    - role: themes
+      tags: [themes, appearance]
+
     - role: dotfiles
       tags: [dotfiles, config]
 

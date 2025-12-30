@@ -112,20 +112,22 @@
 
 - name: Deploy waybar config
   copy:
-    dest: "{{ user_home }}/.config/waybar/config.jsonc"
+    dest: "{{ user_home }}/.config/waybar/config"
     content: |
       {
+          "reload_style_on_change": true,
           "layer": "top",
           "position": "top",
-          "height": 34,
-          "spacing": 4,
-          "modules-left": ["hyprland/workspaces", "hyprland/window"],
-          "modules-center": ["clock"],
-          "modules-right": ["tray", "pulseaudio", "network", "bluetooth", "battery"],
+          "spacing": 0,
+          "height": 26,
 
           "hyprland/workspaces": {
+              "on-scroll-up": "hyprctl dispatch workspace r-1",
+              "on-scroll-down": "hyprctl dispatch workspace r+1",
+              "on-click": "activate",
               "format": "{icon}",
               "format-icons": {
+                  "default": "",
                   "1": "1",
                   "2": "2",
                   "3": "3",
@@ -135,122 +137,163 @@
                   "7": "7",
                   "8": "8",
                   "9": "9",
-                  "10": "10"
+                  "active": "󱓻"
               },
-              "on-click": "activate",
-              "sort-by-number": true
-          },
-
-          "hyprland/window": {
-              "format": "{}",
-              "max-length": 50,
-              "separate-outputs": true
-          },
-
-          "clock": {
-              "format": "{:%H:%M}",
-              "format-alt": "{:%A, %B %d, %Y}",
-              "tooltip-format": "<tt><small>{calendar}</small></tt>",
-              "calendar": {
-                  "mode": "month",
-                  "weeks-pos": "right",
-                  "format": {
-                      "months": "<span color='#eceff4'><b>{}</b></span>",
-                      "days": "<span color='#d8dee9'>{}</span>",
-                      "weeks": "<span color='#88c0d0'>W{}</span>",
-                      "weekdays": "<span color='#81a1c1'>{}</span>",
-                      "today": "<span color='#bf616a'><b>{}</b></span>"
-                  }
+              "persistent-workspaces": {
+                  "*": 5
               }
           },
 
-          "tray": {
-              "spacing": 10
+          "modules-left": [
+              "hyprland/workspaces",
+              "custom/filemanager"
+          ],
+
+          "modules-center": [
+              "clock"
+          ],
+
+          "modules-right": [
+              "pulseaudio",
+              "bluetooth",
+              "network",
+              "cpu",
+              "battery",
+              "tray"
+          ],
+
+          "clock": {
+              "format": "{:%A %H:%M}",
+              "format-alt": "{:%d %B %Y}",
+              "tooltip": false
+          },
+
+          "cpu": {
+              "interval": 5,
+              "format": "",
+              "on-click": "ghostty -e btop"
           },
 
           "pulseaudio": {
-              "format": "{icon} {volume}%",
-              "format-bluetooth": "{icon} {volume}%",
-              "format-muted": " ",
+              "scroll-step": 1,
+              "format": "{icon}",
+              "on-click": "pavucontrol",
+              "on-click-right": "pamixer -t",
+              "tooltip-format": "Volume: {volume}%",
+              "format-muted": "",
               "format-icons": {
-                  "default": ["", "", ""]
-              },
-              "on-click": "pavucontrol"
+                  "default": ["", "", " "]
+              }
           },
 
           "network": {
-              "format-wifi": "  {signalStrength}%",
-              "format-ethernet": " ",
-              "format-disconnected": "󰤭 ",
-              "tooltip-format": "{ifname}: {ipaddr}",
+              "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+              "format": "{icon}",
+              "format-wifi": "{icon}",
+              "format-ethernet": "󰀂",
+              "format-disconnected": "󰤮",
+              "tooltip-format-wifi": "{essid} ({signalStrength}%)",
+              "tooltip-format-ethernet": "{ifname}: {ipaddr}",
+              "tooltip-format-disconnected": "Disconnected",
               "on-click": "nm-connection-editor"
+          },
+
+          "battery": {
+              "format": "{capacity}% {icon}",
+              "format-discharging": "{icon}",
+              "format-charging": "{icon}",
+              "format-plugged": "",
+              "format-icons": {
+                  "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"],
+                  "default": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+              },
+              "format-full": "󰂅",
+              "tooltip-format-discharging": "{capacity}% ({time})",
+              "tooltip-format-charging": "{capacity}% ({time})",
+              "states": {
+                  "warning": 20,
+                  "critical": 10
+              }
           },
 
           "bluetooth": {
               "format": "",
               "format-disabled": "󰂲",
-              "format-connected": " {num_connections}",
-              "tooltip-format": "{controller_alias}\n{num_connections} connected",
+              "format-connected": "",
+              "tooltip-format": "Devices connected: {num_connections}",
               "on-click": "bluetui"
           },
 
-          "battery": {
-              "states": {
-                  "warning": 30,
-                  "critical": 15
-              },
-              "format": "{icon} {capacity}%",
-              "format-charging": " {capacity}%",
-              "format-plugged": " {capacity}%",
-              "format-icons": ["", "", "", "", ""]
+          "custom/filemanager": {
+              "format": "",
+              "on-click": "thunar",
+              "tooltip-format": "Open File Manager"
+          },
+
+          "tray": {
+              "spacing": 10
           }
       }
     mode: '0644'
     force: false
 
-- name: Deploy waybar style
+- name: Deploy waybar style with dynamic theme import
   copy:
     dest: "{{ user_home }}/.config/waybar/style.css"
     content: |
+      /* Import colors from current theme */
+      @import "../../.local/share/dotfiles/current/theme/waybar.css";
+
       * {
-          font-family: "JetBrainsMono Nerd Font";
-          font-size: 13px;
+          background-color: transparent;
+          color: @foreground;
+          border: none;
+          border-radius: 0;
           min-height: 0;
+          font-family: JetBrainsMono Nerd Font;
+          font-size: 14px;
       }
 
       window#waybar {
-          background: rgba(46, 52, 64, 0.9);
-          color: #eceff4;
-          border-bottom: 2px solid #4c566a;
+          background-color: alpha(@background, 0.9);
+      }
+
+      .modules-left {
+          margin: 8px 0px 8px 10px;
+      }
+
+      .modules-right {
+          margin: 8px 10px 8px 0px;
       }
 
       #workspaces button {
-          padding: 0 8px;
-          color: #d8dee9;
-          background: transparent;
-          border-radius: 0;
+          all: initial;
+          padding: 0 6px;
+          margin: 0 1.5px;
+          min-width: 9px;
+          color: @foreground;
       }
 
-      #workspaces button:hover {
-          background: rgba(76, 86, 106, 0.5);
+      #workspaces button.empty {
+          opacity: 0.5;
       }
 
       #workspaces button.active {
-          color: #88c0d0;
-          border-bottom: 2px solid #88c0d0;
+          color: @foreground;
+          font-weight: bold;
       }
 
-      #workspaces button.urgent {
-          background: #bf616a;
-      }
-
-      #clock,
-      #battery,
+      #cpu,
+      #bluetooth,
       #pulseaudio,
       #network,
-      #bluetooth,
+      #clock,
+      #battery,
+      #custom-filemanager,
       #tray {
-          padding: 0 10px;
+          min-width: 12px;
+          margin: 0 8px;
+          font-size: 14px;
       }
 
       #battery.warning {
@@ -261,8 +304,14 @@
           color: #bf616a;
       }
 
-      #battery.charging {
-          color: #a3be8c;
+      tooltip {
+          background-color: alpha(@background, 0.9);
+          padding: 20px;
+          margin: 0px;
+      }
+
+      tooltip label {
+          color: @foreground;
       }
     mode: '0644'
     force: false
@@ -371,12 +420,12 @@
     dest: "{{ user_home }}/.config/hypr/hyprpaper.conf"
     content: |
       # Hyprpaper configuration
-      # Add your wallpaper paths here
+      # Uses dynamic wallpaper from current theme
 
-      preload = ~/Pictures/wallpapers/default.jpg
+      preload = ~/.local/share/dotfiles/current/background
 
       # Apply wallpaper to all monitors
-      wallpaper = ,~/Pictures/wallpapers/default.jpg
+      wallpaper = ,~/.local/share/dotfiles/current/background
 
       # Disable splash
       splash = false
@@ -392,29 +441,6 @@
       font-family = JetBrainsMono Nerd Font
       font-size = 12
 
-      # Nord theme
-      background = 2e3440
-      foreground = eceff4
-
-      palette = 0=#3b4252
-      palette = 1=#bf616a
-      palette = 2=#a3be8c
-      palette = 3=#ebcb8b
-      palette = 4=#81a1c1
-      palette = 5=#b48ead
-      palette = 6=#88c0d0
-      palette = 7=#e5e9f0
-      palette = 8=#4c566a
-      palette = 9=#bf616a
-      palette = 10=#a3be8c
-      palette = 11=#ebcb8b
-      palette = 12=#81a1c1
-      palette = 13=#b48ead
-      palette = 14=#8fbcbb
-      palette = 15=#eceff4
-
-      cursor-color = 88c0d0
-
       window-padding-x = 10
       window-padding-y = 10
 
@@ -422,6 +448,9 @@
       confirm-close-surface = false
 
       gtk-titlebar = false
+
+      # Import theme from current theme
+      config-file = ~/.local/share/dotfiles/current/theme/ghostty.conf
     mode: '0644'
     force: false
 
@@ -429,7 +458,7 @@
   copy:
     dest: "{{ user_home }}/.config/btop/btop.conf"
     content: |
-      color_theme = "nord"
+      color_theme = "current"
       theme_background = False
       truecolor = True
       vim_keys = True

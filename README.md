@@ -35,9 +35,10 @@ ansible-playbook setup.yml --ask-become-pass
 
 ```
 hyprland-ansible/
-├── site.yml                 # Main playbook
+├── setup.yml                # Main playbook
 ├── inventory.yml            # Inventory file
 ├── ansible.cfg              # Ansible configuration
+├── requirements.yml         # Ansible collections
 ├── group_vars/
 │   └── all.yml              # Package lists and variables
 └── roles/
@@ -46,6 +47,7 @@ hyprland-ansible/
     ├── hardware/            # Hardware detection
     ├── hyprland/            # Hyprland configuration
     ├── nvidia/              # NVIDIA-specific setup
+    ├── themes/              # Dynamic theming system
     ├── dotfiles/            # Application configs
     ├── services/            # Systemd services
     └── zsh/                 # Shell setup
@@ -124,12 +126,45 @@ ansible-playbook setup.yml --tags hyprland
 ansible-playbook setup.yml --tags nvidia
 ```
 
+## Dynamic Theming
+
+The playbook includes a dynamic theming system. Switch themes instantly!
+
+### Available Themes
+- `catppuccin`
+- `everforest`
+- `matte-black`
+- `nord` (default)
+- `osaka-jade`
+- `ristretto`
+
+### Switch Themes
+```bash
+theme-set catppuccin
+theme-set nord
+theme-set --list    # Show all themes
+```
+
+### How It Works
+- Themes stored in `~/.local/share/dotfiles/themes/`
+- Active theme symlinked at `~/.local/share/dotfiles/current/theme`
+- Apps auto-reload when switching: Waybar, Hyprland, Mako, Ghostty, btop
+
+### Themed Applications
+| App | Theme File |
+|-----|------------|
+| Hyprland | `hyprland.conf` (border colors) |
+| Waybar | `waybar.css` (colors) |
+| Ghostty | `ghostty.conf` (terminal colors) |
+| Mako | `mako.ini` (notification colors) |
+| btop | `btop.theme` (system monitor) |
+| Hyprlock | `hyprlock.conf` (lock screen) |
+
 ## Post-Installation
 
 1. Reboot your system
 2. Select Hyprland from your display manager
-3. Add wallpapers to `~/Pictures/wallpapers/`
-4. Edit `~/.config/hypr/hyprpaper.conf` for wallpaper
+3. Run `theme-set <theme-name>` to switch themes
 
 ## Troubleshooting
 

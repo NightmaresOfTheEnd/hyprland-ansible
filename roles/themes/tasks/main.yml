@@ -1,0 +1,97 @@
+---
+# Dynamic theming setup
+
+- name: Create dotfiles directory structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ user_home }}/.local/share/dotfiles"
+    - "{{ user_home }}/.local/share/dotfiles/current"
+    - "{{ user_home }}/.local/share/dotfiles/themes"
+    - "{{ user_home }}/.local/share/dotfiles/bin"
+    - "{{ user_home }}/.local/bin"
+    - "{{ user_home }}/.config/btop/themes"
+    - "{{ user_home }}/.config/nvim/lua/plugins"
+    - "{{ user_home }}/Pictures/wallpapers"
+
+- name: Copy all themes
+  copy:
+    src: themes/
+    dest: "{{ user_home }}/.local/share/dotfiles/themes/"
+    mode: '0644'
+    directory_mode: '0755'
+
+- name: Copy theme-set script
+  copy:
+    src: scripts/theme-set
+    dest: "{{ user_home }}/.local/bin/theme-set"
+    mode: '0755'
+
+- name: Copy helper scripts
+  copy:
+    src: scripts/helpers.sh
+    dest: "{{ user_home }}/.local/share/dotfiles/bin/helpers.sh"
+    mode: '0644'
+
+- name: Set default theme ({{ default_theme }})
+  file:
+    src: "{{ user_home }}/.local/share/dotfiles/themes/{{ default_theme }}"
+    dest: "{{ user_home }}/.local/share/dotfiles/current/theme"
+    state: link
+    force: true
+
+- name: Find first wallpaper in theme
+  find:
+    paths: "{{ user_home }}/.local/share/dotfiles/themes/{{ default_theme }}/backgrounds"
+    file_type: file
+  register: theme_wallpapers
+
+- name: Set default wallpaper
+  file:
+    src: "{{ theme_wallpapers.files[0].path }}"
+    dest: "{{ user_home }}/.local/share/dotfiles/current/background"
+    state: link
+    force: true
+  when: theme_wallpapers.files | length > 0
+
+- name: Create theme symlinks for applications
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+    force: true
+  loop:
+    - src: "{{ user_home }}/.local/share/dotfiles/current/theme/btop.theme"
+      dest: "{{ user_home }}/.config/btop/themes/current.theme"
+    - src: "{{ user_home }}/.local/share/dotfiles/current/theme/mako.ini"
+      dest: "{{ user_home }}/.config/mako/config"
+    - src: "{{ user_home }}/.local/share/dotfiles/current/theme/neovim.lua"
+      dest: "{{ user_home }}/.config/nvim/lua/plugins/theme.lua"
+  ignore_errors: true
+
+- name: Link wallpapers directory
+  file:
+    src: "{{ user_home }}/.local/share/dotfiles/themes"
+    dest: "{{ user_home }}/Pictures/themes"
+    state: link
+    force: true
+
+- name: Display theme info
+  debug:
+    msg: |
+      Dynamic theming configured!
+
+      Default theme: {{ default_theme }}
+
+      Available themes:
+        - catppuccin
+        - everforest
+        - matte-black
+        - nord
+        - osaka-jade
+        - ristretto
+
+      Switch themes with: theme-set <theme-name>
+      Example: theme-set catppuccin

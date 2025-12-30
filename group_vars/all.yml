@@ -3,6 +3,10 @@
 user_name: "{{ ansible_user_id }}"
 user_home: "{{ ansible_env.HOME }}"
 
+# Theme configuration
+# Available: catppuccin, everforest, matte-black, nord, osaka-jade, ristretto
+default_theme: "nord"
+
 # Dotfiles source repository
 dotfiles_repo: "https://github.com/SherLock707/hyprland-dotfiles.git"
 dotfiles_branch: "main"
