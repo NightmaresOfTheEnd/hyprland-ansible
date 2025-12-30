@@ -1,0 +1,67 @@
+---
+# AUR helper (paru) setup and AUR packages installation
+
+- name: Check if paru is installed
+  shell: command -v paru
+  register: paru_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Install paru
+  when: paru_check.rc != 0
+  block:
+    - name: Ensure base-devel is installed
+      become: true
+      pacman:
+        name: base-devel
+        state: present
+
+    - name: Create temp directory for paru
+      tempfile:
+        state: directory
+        suffix: paru
+      register: paru_temp
+
+    - name: Clone paru repository
+      git:
+        repo: https://aur.archlinux.org/paru-bin.git
+        dest: "{{ paru_temp.path }}/paru-bin"
+        depth: 1
+
+    - name: Build and install paru
+      shell: makepkg -si --noconfirm
+      args:
+        chdir: "{{ paru_temp.path }}/paru-bin"
+
+    - name: Cleanup temp directory
+      file:
+        path: "{{ paru_temp.path }}"
+        state: absent
+
+- name: Configure paru
+  copy:
+    dest: "{{ user_home }}/.config/paru/paru.conf"
+    content: |
+      [options]
+      BottomUp
+      SudoLoop
+      CleanAfter
+      Provides
+      PgpFetch
+      Devel
+      UpgradeMenu
+    mode: '0644'
+    force: false
+
+- name: Install AUR packages
+  shell: paru -S --noconfirm --needed {{ item }}
+  loop: "{{ aur_packages }}"
+  register: aur_install
+  ignore_errors: true
+  changed_when: "'installing' in aur_install.stdout or 'upgrading' in aur_install.stdout"
+
+- name: List failed AUR packages
+  debug:
+    msg: "Failed to install: {{ item.item }}"
+  loop: "{{ aur_install.results }}"
+  when: item.failed | default(false)

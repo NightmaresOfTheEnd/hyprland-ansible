@@ -1,0 +1,36 @@
+---
+# Hardware-specific setup
+
+- name: Import hardware detection
+  import_tasks: detect.yml
+
+- name: Install laptop-specific packages
+  become: true
+  pacman:
+    name: "{{ laptop_packages }}"
+    state: present
+  when: hardware_type == 'laptop'
+
+- name: Install desktop-specific packages
+  become: true
+  pacman:
+    name: "{{ desktop_packages }}"
+    state: present
+  when: hardware_type == 'desktop'
+
+- name: Enable TLP service for laptops
+  become: true
+  systemd:
+    name: tlp
+    enabled: true
+    state: started
+  when: hardware_type == 'laptop'
+
+- name: Enable auto-cpufreq for laptops
+  become: true
+  systemd:
+    name: auto-cpufreq
+    enabled: true
+    state: started
+  when: hardware_type == 'laptop'
+  ignore_errors: true

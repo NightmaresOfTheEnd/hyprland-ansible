@@ -1,0 +1,180 @@
+---
+# ZSH setup with Oh My Zsh and plugins
+
+- name: Check if Oh My Zsh is installed
+  stat:
+    path: "{{ user_home }}/.oh-my-zsh"
+  register: ohmyzsh_check
+
+- name: Install Oh My Zsh
+  when: not ohmyzsh_check.stat.exists
+  block:
+    - name: Download Oh My Zsh installer
+      get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/install_ohmyzsh.sh
+        mode: '0755'
+
+    - name: Run Oh My Zsh installer
+      shell: sh /tmp/install_ohmyzsh.sh --unattended
+      args:
+        creates: "{{ user_home }}/.oh-my-zsh"
+
+    - name: Cleanup installer
+      file:
+        path: /tmp/install_ohmyzsh.sh
+        state: absent
+
+- name: Install zsh-autosuggestions plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    depth: 1
+    update: false
+
+- name: Install zsh-syntax-highlighting plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    depth: 1
+    update: false
+
+- name: Install fast-syntax-highlighting plugin
+  git:
+    repo: https://github.com/zdharma-continuum/fast-syntax-highlighting.git
+    dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/fast-syntax-highlighting"
+    depth: 1
+    update: false
+
+- name: Install zsh-completions plugin
+  git:
+    repo: https://github.com/zsh-users/zsh-completions.git
+    dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-completions"
+    depth: 1
+    update: false
+
+- name: Change default shell to zsh
+  become: true
+  user:
+    name: "{{ user_name }}"
+    shell: /usr/bin/zsh
+
+- name: Create .zshrc configuration
+  copy:
+    dest: "{{ user_home }}/.zshrc"
+    content: |
+      # Path to oh-my-zsh installation
+      export ZSH="$HOME/.oh-my-zsh"
+
+      # Theme
+      ZSH_THEME="robbyrussell"
+
+      # Plugins
+      plugins=(
+        git
+        zsh-autosuggestions
+        zsh-syntax-highlighting
+        fast-syntax-highlighting
+        zsh-completions
+        sudo
+        history
+        dirhistory
+      )
+
+      source $ZSH/oh-my-zsh.sh
+
+      # User configuration
+      export EDITOR='nvim'
+      export VISUAL='nvim'
+
+      # Aliases
+      alias ls='eza --icons'
+      alias ll='eza -la --icons'
+      alias la='eza -a --icons'
+      alias lt='eza --tree --icons'
+      alias cat='bat'
+      alias grep='rg'
+      alias find='fd'
+      alias vim='nvim'
+      alias vi='nvim'
+      alias cd='z'
+
+      # Starship prompt
+      eval "$(starship init zsh)"
+
+      # Zoxide
+      eval "$(zoxide init zsh)"
+
+      # FZF
+      source /usr/share/fzf/key-bindings.zsh
+      source /usr/share/fzf/completion.zsh
+    mode: '0644'
+    backup: true
+    force: false
+
+- name: Create starship config directory
+  file:
+    path: "{{ user_home }}/.config/starship"
+    state: directory
+    mode: '0755'
+
+- name: Deploy starship configuration
+  copy:
+    dest: "{{ user_home }}/.config/starship.toml"
+    content: |
+      # Starship configuration
+      format = """
+      [](#3B4252)\
+      $os\
+      $username\
+      [](bg:#434C5E fg:#3B4252)\
+      $directory\
+      [](fg:#434C5E bg:#4C566A)\
+      $git_branch\
+      $git_status\
+      [](fg:#4C566A bg:#86BBD8)\
+      $c\
+      $rust\
+      $golang\
+      $nodejs\
+      $python\
+      [](fg:#86BBD8 bg:#06969A)\
+      $docker_context\
+      [](fg:#06969A bg:#33658A)\
+      $time\
+      [ ](fg:#33658A)\
+      """
+
+      [username]
+      show_always = true
+      style_user = "bg:#3B4252"
+      style_root = "bg:#3B4252"
+      format = '[$user ]($style)'
+      disabled = false
+
+      [os]
+      style = "bg:#3B4252"
+      disabled = false
+
+      [directory]
+      style = "bg:#434C5E"
+      format = "[ $path ]($style)"
+      truncation_length = 3
+      truncation_symbol = ".../"
+
+      [git_branch]
+      symbol = ""
+      style = "bg:#4C566A"
+      format = '[ $symbol $branch ]($style)'
+
+      [git_status]
+      style = "bg:#4C566A"
+      format = '[$all_status$ahead_behind ]($style)'
+
+      [time]
+      disabled = false
+      time_format = "%R"
+      style = "bg:#33658A"
+      format = '[ $time ]($style)'
+    mode: '0644'
+    force: false

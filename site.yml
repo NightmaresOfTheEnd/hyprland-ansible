@@ -1,0 +1,58 @@
+---
+# Arch Linux Hyprland Desktop Setup
+# Run with: ansible-playbook site.yml --ask-become-pass
+
+- name: Setup Arch Linux with Hyprland
+  hosts: localhost
+  become: false
+
+  pre_tasks:
+    - name: Update pacman cache
+      become: true
+      pacman:
+        update_cache: true
+
+    - name: Gather hardware facts
+      import_role:
+        name: hardware
+        tasks_from: detect
+
+  roles:
+    - role: base
+      tags: [base, packages]
+
+    - role: aur
+      tags: [aur, packages]
+
+    - role: zsh
+      tags: [zsh, shell]
+
+    - role: hyprland
+      tags: [hyprland, desktop]
+
+    - role: nvidia
+      when: has_nvidia_gpu | default(false)
+      tags: [nvidia, drivers]
+
+    - role: dotfiles
+      tags: [dotfiles, config]
+
+    - role: services
+      tags: [services, systemd]
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg: |
+          ============================================
+          Hyprland setup complete!
+
+          Hardware detected:
+            - GPU: {{ 'NVIDIA' if has_nvidia_gpu else 'AMD/Intel' }}
+            - Type: {{ hardware_type | default('desktop') }}
+
+          Next steps:
+            1. Log out and select Hyprland session
+            2. Review configs in ~/.config/hypr/
+            3. Customize to your preferences
+          ============================================

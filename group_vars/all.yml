@@ -1,0 +1,156 @@
+---
+# User configuration
+user_name: "{{ ansible_user_id }}"
+user_home: "{{ ansible_env.HOME }}"
+
+# Dotfiles source repository
+dotfiles_repo: "https://github.com/SherLock707/hyprland-dotfiles.git"
+dotfiles_branch: "main"
+
+# Package lists
+base_packages:
+  # System & Security
+  - base-devel
+  - gnome-keyring
+  - openssh
+  - polkit-gnome
+  - ufw
+  - usbutils
+
+  # Terminal & Shell
+  - bat
+  - bc
+  - btop
+  - eza
+  - fastfetch
+  - fd
+  - fzf
+  - jq
+  - pv
+  - ripgrep
+  - starship
+  - zoxide
+  - zsh
+
+  # Development
+  - git
+  - lazygit
+  - neovim
+
+  # Audio
+  - pamixer
+  - pipewire
+  - pipewire-alsa
+  - pipewire-audio
+  - pipewire-jack
+  - pipewire-pulse
+  - wireplumber
+  - wiremix
+
+  # Bluetooth
+  - bluez
+  - bluez-libs
+  - bluez-utils
+  - bluetui
+
+  # File Management
+  - gvfs-dnssd
+  - loupe
+  - rsync
+  - thunar
+  - thunar-volman
+  - tumbler
+  - unzip
+  - p7zip
+  - zip
+
+  # System Utilities
+  - pacman-contrib
+  - plocate
+  - power-profiles-daemon
+
+  # Fonts
+  - noto-fonts
+  - noto-fonts-emoji
+  - otf-font-awesome
+  - ttf-cascadia-mono-nerd
+  - ttf-jetbrains-mono-nerd
+
+  # Appearance
+  - bibata-cursor-theme
+  - gnome-themes-extra
+  - yaru-icon-theme
+
+  # Media
+  - ffmpeg
+  - mpv
+
+  # OCR
+  - tesseract
+  - tesseract-data-eng
+
+aur_packages:
+  # Hyprland ecosystem
+  - hyprland
+  - hyprcursor
+  - hyprgraphics
+  - hypridle
+  - hyprland-guiutils
+  - hyprlang
+  - hyprlock
+  - hyprpaper
+  - hyprpicker
+  - hyprtoolkit
+  - hyprutils
+  - hyprwayland-scanner
+  - xdg-desktop-portal-hyprland
+
+  # Wayland UI & Utilities
+  - gjs
+  - grim
+  - imagemagick
+  - impala
+  - mako
+  - matugen
+  - satty
+  - slurp
+  - swayosd
+  - tinte
+  - uwsm
+  - waybar
+  - wofi
+  - zenity
+
+  # Clipboard
+  - wl-clipboard
+  - cliphist
+
+  # Screen Recording
+  - gpu-screen-recorder
+
+  # Desktop Portals
+  - xdg-desktop-portal-gtk
+  - xdg-utils
+
+  # Terminal
+  - ghostty
+
+  # Browser
+  - zen-browser-bin
+
+nvidia_packages:
+  - nvidia
+  - nvidia-utils
+  - nvidia-settings
+  - egl-wayland
+  - libva-nvidia-driver
+  - qt5-wayland
+  - qt6-wayland
+
+laptop_packages:
+  - brightnessctl
+  - tlp
+  - auto-cpufreq
+
+desktop_packages:
+  - ddcutil

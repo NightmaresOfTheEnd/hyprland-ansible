@@ -1,0 +1,480 @@
+---
+# Additional configuration files deployment
+
+- name: Deploy wofi configuration
+  copy:
+    dest: "{{ user_home }}/.config/wofi/config"
+    content: |
+      width=600
+      height=400
+      location=center
+      show=drun
+      prompt=Search...
+      filter_rate=100
+      allow_markup=true
+      no_actions=true
+      halign=fill
+      orientation=vertical
+      content_halign=fill
+      insensitive=true
+      allow_images=true
+      image_size=32
+      gtk_dark=true
+      dynamic_lines=true
+    mode: '0644'
+    force: false
+
+- name: Deploy wofi style
+  copy:
+    dest: "{{ user_home }}/.config/wofi/style.css"
+    content: |
+      window {
+          margin: 0px;
+          border: 2px solid #88c0d0;
+          border-radius: 15px;
+          background-color: #2e3440;
+          font-family: "JetBrainsMono Nerd Font";
+          font-size: 14px;
+      }
+
+      #input {
+          margin: 5px;
+          padding: 10px;
+          border: none;
+          border-radius: 10px;
+          color: #eceff4;
+          background-color: #3b4252;
+      }
+
+      #inner-box {
+          margin: 5px;
+          border: none;
+          background-color: transparent;
+      }
+
+      #outer-box {
+          margin: 5px;
+          border: none;
+          background-color: transparent;
+      }
+
+      #scroll {
+          margin: 5px;
+          border: none;
+      }
+
+      #text {
+          margin: 5px;
+          color: #eceff4;
+      }
+
+      #entry:selected {
+          background-color: #4c566a;
+          border-radius: 10px;
+      }
+
+      #entry:selected #text {
+          color: #88c0d0;
+      }
+    mode: '0644'
+    force: false
+
+- name: Deploy mako notification config
+  copy:
+    dest: "{{ user_home }}/.config/mako/config"
+    content: |
+      sort=-time
+      layer=overlay
+      background-color=#2e3440
+      width=350
+      height=150
+      border-size=2
+      border-color=#88c0d0
+      border-radius=12
+      icons=1
+      max-icon-size=64
+      default-timeout=5000
+      ignore-timeout=1
+      font=JetBrainsMono Nerd Font 11
+      margin=10
+
+      [urgency=low]
+      border-color=#4c566a
+
+      [urgency=normal]
+      border-color=#88c0d0
+
+      [urgency=high]
+      border-color=#bf616a
+      default-timeout=0
+    mode: '0644'
+    force: false
+
+- name: Deploy waybar config
+  copy:
+    dest: "{{ user_home }}/.config/waybar/config.jsonc"
+    content: |
+      {
+          "layer": "top",
+          "position": "top",
+          "height": 34,
+          "spacing": 4,
+          "modules-left": ["hyprland/workspaces", "hyprland/window"],
+          "modules-center": ["clock"],
+          "modules-right": ["tray", "pulseaudio", "network", "bluetooth", "battery"],
+
+          "hyprland/workspaces": {
+              "format": "{icon}",
+              "format-icons": {
+                  "1": "1",
+                  "2": "2",
+                  "3": "3",
+                  "4": "4",
+                  "5": "5",
+                  "6": "6",
+                  "7": "7",
+                  "8": "8",
+                  "9": "9",
+                  "10": "10"
+              },
+              "on-click": "activate",
+              "sort-by-number": true
+          },
+
+          "hyprland/window": {
+              "format": "{}",
+              "max-length": 50,
+              "separate-outputs": true
+          },
+
+          "clock": {
+              "format": "{:%H:%M}",
+              "format-alt": "{:%A, %B %d, %Y}",
+              "tooltip-format": "<tt><small>{calendar}</small></tt>",
+              "calendar": {
+                  "mode": "month",
+                  "weeks-pos": "right",
+                  "format": {
+                      "months": "<span color='#eceff4'><b>{}</b></span>",
+                      "days": "<span color='#d8dee9'>{}</span>",
+                      "weeks": "<span color='#88c0d0'>W{}</span>",
+                      "weekdays": "<span color='#81a1c1'>{}</span>",
+                      "today": "<span color='#bf616a'><b>{}</b></span>"
+                  }
+              }
+          },
+
+          "tray": {
+              "spacing": 10
+          },
+
+          "pulseaudio": {
+              "format": "{icon} {volume}%",
+              "format-bluetooth": "{icon} {volume}%",
+              "format-muted": " ",
+              "format-icons": {
+                  "default": ["", "", ""]
+              },
+              "on-click": "pavucontrol"
+          },
+
+          "network": {
+              "format-wifi": "  {signalStrength}%",
+              "format-ethernet": " ",
+              "format-disconnected": "󰤭 ",
+              "tooltip-format": "{ifname}: {ipaddr}",
+              "on-click": "nm-connection-editor"
+          },
+
+          "bluetooth": {
+              "format": "",
+              "format-disabled": "󰂲",
+              "format-connected": " {num_connections}",
+              "tooltip-format": "{controller_alias}\n{num_connections} connected",
+              "on-click": "bluetui"
+          },
+
+          "battery": {
+              "states": {
+                  "warning": 30,
+                  "critical": 15
+              },
+              "format": "{icon} {capacity}%",
+              "format-charging": " {capacity}%",
+              "format-plugged": " {capacity}%",
+              "format-icons": ["", "", "", "", ""]
+          }
+      }
+    mode: '0644'
+    force: false
+
+- name: Deploy waybar style
+  copy:
+    dest: "{{ user_home }}/.config/waybar/style.css"
+    content: |
+      * {
+          font-family: "JetBrainsMono Nerd Font";
+          font-size: 13px;
+          min-height: 0;
+      }
+
+      window#waybar {
+          background: rgba(46, 52, 64, 0.9);
+          color: #eceff4;
+          border-bottom: 2px solid #4c566a;
+      }
+
+      #workspaces button {
+          padding: 0 8px;
+          color: #d8dee9;
+          background: transparent;
+          border-radius: 0;
+      }
+
+      #workspaces button:hover {
+          background: rgba(76, 86, 106, 0.5);
+      }
+
+      #workspaces button.active {
+          color: #88c0d0;
+          border-bottom: 2px solid #88c0d0;
+      }
+
+      #workspaces button.urgent {
+          background: #bf616a;
+      }
+
+      #clock,
+      #battery,
+      #pulseaudio,
+      #network,
+      #bluetooth,
+      #tray {
+          padding: 0 10px;
+      }
+
+      #battery.warning {
+          color: #ebcb8b;
+      }
+
+      #battery.critical {
+          color: #bf616a;
+      }
+
+      #battery.charging {
+          color: #a3be8c;
+      }
+    mode: '0644'
+    force: false
+
+- name: Deploy hypridle config
+  copy:
+    dest: "{{ user_home }}/.config/hypr/hypridle.conf"
+    content: |
+      general {
+          lock_cmd = pidof hyprlock || hyprlock
+          before_sleep_cmd = loginctl lock-session
+          after_sleep_cmd = hyprctl dispatch dpms on
+      }
+
+      listener {
+          timeout = 300
+          on-timeout = brightnessctl -s set 30%
+          on-resume = brightnessctl -r
+      }
+
+      listener {
+          timeout = 600
+          on-timeout = loginctl lock-session
+      }
+
+      listener {
+          timeout = 660
+          on-timeout = hyprctl dispatch dpms off
+          on-resume = hyprctl dispatch dpms on
+      }
+
+      listener {
+          timeout = 1800
+          on-timeout = systemctl suspend
+      }
+    mode: '0644'
+    force: false
+
+- name: Deploy hyprlock config
+  copy:
+    dest: "{{ user_home }}/.config/hypr/hyprlock.conf"
+    content: |
+      general {
+          disable_loading_bar = false
+          hide_cursor = true
+          grace = 0
+          no_fade_in = false
+      }
+
+      background {
+          monitor =
+          path = screenshot
+          blur_passes = 3
+          blur_size = 8
+          noise = 0.0117
+          contrast = 0.8916
+          brightness = 0.8172
+          vibrancy = 0.1696
+          vibrancy_darkness = 0.0
+      }
+
+      input-field {
+          monitor =
+          size = 300, 50
+          outline_thickness = 2
+          dots_size = 0.2
+          dots_spacing = 0.64
+          dots_center = true
+          outer_color = rgb(136, 192, 208)
+          inner_color = rgb(46, 52, 64)
+          font_color = rgb(236, 239, 244)
+          fade_on_empty = true
+          placeholder_text = <i>Password...</i>
+          hide_input = false
+          position = 0, -20
+          halign = center
+          valign = center
+      }
+
+      label {
+          monitor =
+          text = $TIME
+          font_size = 64
+          font_family = JetBrainsMono Nerd Font
+          color = rgb(236, 239, 244)
+          position = 0, 150
+          halign = center
+          valign = center
+      }
+
+      label {
+          monitor =
+          text = Hi, $USER
+          font_size = 20
+          font_family = JetBrainsMono Nerd Font
+          color = rgb(136, 192, 208)
+          position = 0, 80
+          halign = center
+          valign = center
+      }
+    mode: '0644'
+    force: false
+
+- name: Deploy hyprpaper config
+  copy:
+    dest: "{{ user_home }}/.config/hypr/hyprpaper.conf"
+    content: |
+      # Hyprpaper configuration
+      # Add your wallpaper paths here
+
+      preload = ~/Pictures/wallpapers/default.jpg
+
+      # Apply wallpaper to all monitors
+      wallpaper = ,~/Pictures/wallpapers/default.jpg
+
+      # Disable splash
+      splash = false
+    mode: '0644'
+    force: false
+
+- name: Deploy ghostty config
+  copy:
+    dest: "{{ user_home }}/.config/ghostty/config"
+    content: |
+      # Ghostty terminal configuration
+
+      font-family = JetBrainsMono Nerd Font
+      font-size = 12
+
+      # Nord theme
+      background = 2e3440
+      foreground = eceff4
+
+      palette = 0=#3b4252
+      palette = 1=#bf616a
+      palette = 2=#a3be8c
+      palette = 3=#ebcb8b
+      palette = 4=#81a1c1
+      palette = 5=#b48ead
+      palette = 6=#88c0d0
+      palette = 7=#e5e9f0
+      palette = 8=#4c566a
+      palette = 9=#bf616a
+      palette = 10=#a3be8c
+      palette = 11=#ebcb8b
+      palette = 12=#81a1c1
+      palette = 13=#b48ead
+      palette = 14=#8fbcbb
+      palette = 15=#eceff4
+
+      cursor-color = 88c0d0
+
+      window-padding-x = 10
+      window-padding-y = 10
+
+      copy-on-select = clipboard
+      confirm-close-surface = false
+
+      gtk-titlebar = false
+    mode: '0644'
+    force: false
+
+- name: Deploy btop config
+  copy:
+    dest: "{{ user_home }}/.config/btop/btop.conf"
+    content: |
+      color_theme = "nord"
+      theme_background = False
+      truecolor = True
+      vim_keys = True
+      rounded_corners = True
+      graph_symbol = "braille"
+      shown_boxes = "cpu mem net proc"
+      update_ms = 1000
+      proc_sorting = "cpu lazy"
+      proc_tree = False
+      proc_per_core = True
+      proc_mem_bytes = True
+    mode: '0644'
+    force: false
+
+- name: Download default wallpaper
+  get_url:
+    url: https://raw.githubusercontent.com/NordTheme/wallpapers/main/nord-2560x1440.png
+    dest: "{{ user_home }}/Pictures/wallpapers/default.jpg"
+    mode: '0644'
+  ignore_errors: true
+
+- name: Create GTK settings
+  copy:
+    dest: "{{ user_home }}/.config/gtk-3.0/settings.ini"
+    content: |
+      [Settings]
+      gtk-theme-name=Adwaita-dark
+      gtk-icon-theme-name=Yaru
+      gtk-font-name=Noto Sans 11
+      gtk-cursor-theme-name=Bibata-Modern-Ice
+      gtk-cursor-theme-size=24
+      gtk-application-prefer-dark-theme=true
+    mode: '0644'
+    force: false
+
+- name: Create GTK 4.0 settings
+  copy:
+    dest: "{{ user_home }}/.config/gtk-4.0/settings.ini"
+    content: |
+      [Settings]
+      gtk-theme-name=Adwaita-dark
+      gtk-icon-theme-name=Yaru
+      gtk-font-name=Noto Sans 11
+      gtk-cursor-theme-name=Bibata-Modern-Ice
+      gtk-cursor-theme-size=24
+      gtk-application-prefer-dark-theme=true
+    mode: '0644'
+    force: false

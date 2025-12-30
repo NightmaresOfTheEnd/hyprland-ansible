@@ -1,0 +1,91 @@
+---
+# Systemd services configuration
+
+- name: Enable bluetooth service
+  become: true
+  systemd:
+    name: bluetooth
+    enabled: true
+    state: started
+
+- name: Enable pipewire user services
+  systemd:
+    name: "{{ item }}"
+    enabled: true
+    scope: user
+    state: started
+  loop:
+    - pipewire.service
+    - pipewire-pulse.service
+    - wireplumber.service
+  ignore_errors: true
+
+- name: Enable power-profiles-daemon
+  become: true
+  systemd:
+    name: power-profiles-daemon
+    enabled: true
+    state: started
+  ignore_errors: true
+
+- name: Configure firewall (ufw)
+  become: true
+  block:
+    - name: Set ufw default deny incoming
+      ufw:
+        direction: incoming
+        policy: deny
+
+    - name: Set ufw default allow outgoing
+      ufw:
+        direction: outgoing
+        policy: allow
+
+    - name: Enable ufw
+      ufw:
+        state: enabled
+
+- name: Enable plocate timer
+  become: true
+  systemd:
+    name: plocate-updatedb.timer
+    enabled: true
+    state: started
+  ignore_errors: true
+
+- name: Configure PAM for gnome-keyring
+  become: true
+  lineinfile:
+    path: /etc/pam.d/login
+    line: "auth       optional     pam_gnome_keyring.so"
+    insertafter: "auth"
+  ignore_errors: true
+
+- name: Configure PAM session for gnome-keyring
+  become: true
+  lineinfile:
+    path: /etc/pam.d/login
+    line: "session    optional     pam_gnome_keyring.so auto_start"
+    insertafter: "session"
+  ignore_errors: true
+
+- name: Enable SDDM display manager (if installed)
+  become: true
+  systemd:
+    name: sddm
+    enabled: true
+  ignore_errors: true
+
+- name: Display services notice
+  debug:
+    msg: |
+      Services configured:
+        - Bluetooth: enabled
+        - Pipewire audio: enabled
+        - Power profiles: enabled
+        - Firewall (ufw): enabled with default deny
+        - File indexing (plocate): enabled
+        - GNOME Keyring: configured
+
+      Note: You may need to log out and back in for
+      user services to take effect.

@@ -1,0 +1,163 @@
+---
+# Hyprland configuration setup
+
+- name: Create Hyprland config directories
+  file:
+    path: "{{ user_home }}/.config/hypr/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - conf
+    - scripts
+
+- name: Deploy main Hyprland configuration
+  template:
+    src: hyprland.conf.j2
+    dest: "{{ user_home }}/.config/hypr/hyprland.conf"
+    mode: '0644'
+    backup: true
+    force: false
+
+- name: Deploy Hyprland environment config
+  template:
+    src: env.conf.j2
+    dest: "{{ user_home }}/.config/hypr/conf/env.conf"
+    mode: '0644'
+    force: false
+
+- name: Deploy Hyprland keybindings
+  template:
+    src: keybindings.conf.j2
+    dest: "{{ user_home }}/.config/hypr/conf/keybindings.conf"
+    mode: '0644'
+    force: false
+
+- name: Deploy Hyprland window rules
+  copy:
+    dest: "{{ user_home }}/.config/hypr/conf/windowrules.conf"
+    content: |
+      # Window Rules
+
+      # Floating windows
+      windowrulev2 = float, class:^(pavucontrol)$
+      windowrulev2 = float, class:^(blueman-manager)$
+      windowrulev2 = float, class:^(nm-connection-editor)$
+      windowrulev2 = float, title:^(Picture-in-Picture)$
+      windowrulev2 = float, class:^(zenity)$
+      windowrulev2 = float, class:^(wofi)$
+      windowrulev2 = float, class:^(file-roller)$
+
+      # Opacity rules
+      windowrulev2 = opacity 0.95 0.85, class:^(ghostty)$
+      windowrulev2 = opacity 0.95 0.85, class:^(thunar)$
+
+      # Size rules
+      windowrulev2 = size 800 600, class:^(pavucontrol)$
+      windowrulev2 = size 800 600, class:^(blueman-manager)$
+    mode: '0644'
+    force: false
+
+- name: Deploy Hyprland autostart config
+  copy:
+    dest: "{{ user_home }}/.config/hypr/conf/autostart.conf"
+    content: |
+      # Autostart applications
+
+      # Polkit agent
+      exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+      # Clipboard manager
+      exec-once = wl-paste --type text --watch cliphist store
+      exec-once = wl-paste --type image --watch cliphist store
+
+      # Status bar
+      exec-once = waybar
+
+      # Notification daemon
+      exec-once = mako
+
+      # Wallpaper
+      exec-once = hyprpaper
+
+      # Idle manager
+      exec-once = hypridle
+
+      # OSD
+      exec-once = swayosd-server
+    mode: '0644'
+    force: false
+
+- name: Deploy brightness control script for laptops
+  copy:
+    dest: "{{ user_home }}/.config/hypr/scripts/brightness.sh"
+    content: |
+      #!/bin/bash
+      # Brightness control script
+
+      case "$1" in
+        up)
+          brightnessctl set +5%
+          ;;
+        down)
+          brightnessctl set 5%-
+          ;;
+        *)
+          echo "Usage: $0 {up|down}"
+          exit 1
+          ;;
+      esac
+    mode: '0755'
+  when: hardware_type == 'laptop'
+
+- name: Deploy DDC brightness script for desktops
+  copy:
+    dest: "{{ user_home }}/.config/hypr/scripts/brightness.sh"
+    content: |
+      #!/bin/bash
+      # DDC brightness control for external monitors
+
+      case "$1" in
+        up)
+          ddcutil setvcp 10 + 5
+          ;;
+        down)
+          ddcutil setvcp 10 - 5
+          ;;
+        *)
+          echo "Usage: $0 {up|down}"
+          exit 1
+          ;;
+      esac
+    mode: '0755'
+  when: hardware_type == 'desktop'
+
+- name: Deploy screenshot script
+  copy:
+    dest: "{{ user_home }}/.config/hypr/scripts/screenshot.sh"
+    content: |
+      #!/bin/bash
+      # Screenshot script using grim and slurp
+
+      SCREENSHOT_DIR="$HOME/Pictures/screenshots"
+      mkdir -p "$SCREENSHOT_DIR"
+      FILENAME="$SCREENSHOT_DIR/screenshot_$(date +%Y%m%d_%H%M%S).png"
+
+      case "$1" in
+        full)
+          grim "$FILENAME"
+          ;;
+        region)
+          grim -g "$(slurp)" "$FILENAME"
+          ;;
+        window)
+          grim -g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" "$FILENAME"
+          ;;
+        *)
+          echo "Usage: $0 {full|region|window}"
+          exit 1
+          ;;
+      esac
+
+      wl-copy < "$FILENAME"
+      notify-send "Screenshot saved" "$FILENAME"
+    mode: '0755'

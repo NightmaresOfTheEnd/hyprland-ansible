@@ -1,0 +1,56 @@
+---
+# Hardware detection tasks
+
+- name: Detect NVIDIA GPU
+  shell: lspci | grep -i nvidia
+  register: nvidia_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Set NVIDIA GPU fact
+  set_fact:
+    has_nvidia_gpu: "{{ nvidia_check.rc == 0 }}"
+
+- name: Detect AMD GPU
+  shell: lspci | grep -i 'amd.*vga\|radeon'
+  register: amd_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Set AMD GPU fact
+  set_fact:
+    has_amd_gpu: "{{ amd_check.rc == 0 }}"
+
+- name: Detect Intel GPU
+  shell: lspci | grep -i 'intel.*vga\|intel.*graphics'
+  register: intel_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Set Intel GPU fact
+  set_fact:
+    has_intel_gpu: "{{ intel_check.rc == 0 }}"
+
+- name: Detect laptop (check for battery)
+  stat:
+    path: /sys/class/power_supply/BAT0
+  register: battery_check
+
+- name: Check for alternative battery path
+  stat:
+    path: /sys/class/power_supply/BAT1
+  register: battery_check_alt
+  when: not battery_check.stat.exists
+
+- name: Set hardware type fact
+  set_fact:
+    hardware_type: "{{ 'laptop' if (battery_check.stat.exists or (battery_check_alt.stat.exists | default(false))) else 'desktop' }}"
+
+- name: Display detected hardware
+  debug:
+    msg: |
+      Detected Hardware:
+        - NVIDIA GPU: {{ has_nvidia_gpu }}
+        - AMD GPU: {{ has_amd_gpu }}
+        - Intel GPU: {{ has_intel_gpu }}
+        - Hardware Type: {{ hardware_type }}

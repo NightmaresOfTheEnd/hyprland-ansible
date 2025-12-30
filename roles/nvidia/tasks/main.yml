@@ -1,0 +1,86 @@
+---
+# NVIDIA GPU setup for Hyprland
+
+- name: Install NVIDIA packages
+  become: true
+  pacman:
+    name: "{{ nvidia_packages }}"
+    state: present
+
+- name: Configure mkinitcpio for NVIDIA
+  become: true
+  lineinfile:
+    path: /etc/mkinitcpio.conf
+    regexp: '^MODULES=\(.*\)$'
+    line: 'MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)'
+    backup: true
+  register: mkinitcpio_changed
+
+- name: Regenerate initramfs
+  become: true
+  command: mkinitcpio -P
+  when: mkinitcpio_changed.changed
+
+- name: Create NVIDIA modprobe config
+  become: true
+  copy:
+    dest: /etc/modprobe.d/nvidia.conf
+    content: |
+      options nvidia_drm modeset=1
+      options nvidia_drm fbdev=1
+      options nvidia NVreg_PreserveVideoMemoryAllocations=1
+    mode: '0644'
+  register: modprobe_changed
+
+- name: Enable NVIDIA suspend services
+  become: true
+  systemd:
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - nvidia-suspend.service
+    - nvidia-hibernate.service
+    - nvidia-resume.service
+  ignore_errors: true
+
+- name: Create NVIDIA environment config for Hyprland
+  copy:
+    dest: "{{ user_home }}/.config/hypr/conf/nvidia.conf"
+    content: |
+      # NVIDIA-specific Hyprland settings
+
+      # Enable tearing (reduces input lag for games)
+      # Uncomment if desired:
+      # general {
+      #     allow_tearing = true
+      # }
+
+      # Cursor settings for NVIDIA
+      cursor {
+          no_hardware_cursors = true
+      }
+
+      # Render settings
+      render {
+          explicit_sync = 2
+      }
+    mode: '0644'
+
+- name: Add NVIDIA config source to hyprland.conf
+  lineinfile:
+    path: "{{ user_home }}/.config/hypr/hyprland.conf"
+    line: "source = ~/.config/hypr/conf/nvidia.conf"
+    insertafter: "source = ~/.config/hypr/conf/env.conf"
+  ignore_errors: true
+
+- name: Display NVIDIA setup notice
+  debug:
+    msg: |
+      NVIDIA setup complete!
+
+      Important notes:
+      - A reboot is required for changes to take effect
+      - If you experience issues, check:
+        - /etc/mkinitcpio.conf for MODULES
+        - /etc/modprobe.d/nvidia.conf for options
+      - For gaming, consider enabling tearing in nvidia.conf

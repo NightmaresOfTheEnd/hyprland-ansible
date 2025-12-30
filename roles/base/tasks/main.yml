@@ -1,0 +1,41 @@
+---
+# Base system packages installation
+
+- name: Install base packages via pacman
+  become: true
+  pacman:
+    name: "{{ base_packages }}"
+    state: present
+  register: base_install
+  ignore_errors: true
+
+- name: Report failed packages
+  debug:
+    msg: "Some base packages failed to install. Check if they need AUR."
+  when: base_install.failed | default(false)
+
+- name: Ensure config directories exist
+  file:
+    path: "{{ user_home }}/.config/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - hypr
+    - waybar
+    - wofi
+    - mako
+    - btop
+    - ghostty
+    - nvim
+
+- name: Ensure local directories exist
+  file:
+    path: "{{ user_home }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - .local/bin
+    - .local/share
+    - .local/state
+    - Pictures/wallpapers
+    - Pictures/screenshots
