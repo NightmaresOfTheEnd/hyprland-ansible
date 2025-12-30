@@ -24,8 +24,11 @@ Automated Arch Linux desktop setup with Hyprland window manager.
 git clone <your-repo-url> ~/hyprland-ansible
 cd ~/hyprland-ansible
 
+# Install required Ansible collections
+ansible-galaxy collection install -r requirements.yml
+
 # Run the playbook
-ansible-playbook site.yml --ask-become-pass
+ansible-playbook setup.yml --ask-become-pass
 ```
 
 ## Structure
@@ -112,13 +115,13 @@ Edit `group_vars/all.yml`:
 
 ```bash
 # Only install packages
-ansible-playbook site.yml --tags packages
+ansible-playbook setup.yml --tags packages
 
 # Only configure Hyprland
-ansible-playbook site.yml --tags hyprland
+ansible-playbook setup.yml --tags hyprland
 
 # Only NVIDIA setup
-ansible-playbook site.yml --tags nvidia
+ansible-playbook setup.yml --tags nvidia
 ```
 
 ## Post-Installation
