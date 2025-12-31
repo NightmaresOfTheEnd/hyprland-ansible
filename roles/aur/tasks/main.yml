@@ -50,6 +50,12 @@
         path: "{{ paru_temp.path }}"
         state: absent
 
+- name: Create paru config directory
+  file:
+    path: "{{ user_home }}/.config/paru"
+    state: directory
+    mode: '0755'
+
 - name: Configure paru
   copy:
     dest: "{{ user_home }}/.config/paru/paru.conf"
