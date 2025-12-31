@@ -73,7 +73,6 @@ base_packages:
 
   # Display Manager (Wayland-native)
   - greetd
-  - greetd-tuigreet
 
   # Fonts
   - noto-fonts
@@ -149,6 +148,9 @@ aur_packages:
   # Audio/Bluetooth (AUR)
   - wiremix
   - bluetui
+
+  # Display Manager (AUR)
+  - greetd-tuigreet
 
 nvidia_packages:
   - nvidia

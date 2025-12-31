@@ -69,11 +69,4 @@
   shell: paru -S --noconfirm --needed {{ item }}
   loop: "{{ aur_packages }}"
   register: aur_install
-  failed_when: false
   changed_when: "'installing' in (aur_install.stdout | default('')) or 'upgrading' in (aur_install.stdout | default(''))"
-
-- name: List failed AUR packages
-  debug:
-    msg: "Failed to install: {{ item.item }}"
-  loop: "{{ aur_install.results }}"
-  when: item.rc != 0

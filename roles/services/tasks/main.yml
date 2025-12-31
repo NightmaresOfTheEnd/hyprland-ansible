@@ -111,6 +111,27 @@
   changed_when: false
   failed_when: false
 
+- name: Ensure wayland-sessions directory exists
+  become: true
+  file:
+    path: /usr/share/wayland-sessions
+    state: directory
+    mode: '0755'
+
+- name: Create Hyprland session file
+  become: true
+  copy:
+    dest: /usr/share/wayland-sessions/hyprland.desktop
+    content: |
+      [Desktop Entry]
+      Name=Hyprland
+      Comment=An intelligent dynamic tiling Wayland compositor
+      Exec=Hyprland
+      Type=Application
+      DesktopNames=Hyprland
+    mode: '0644'
+    force: false
+
 - name: Configure greetd
   become: true
   copy:
