@@ -1,12 +1,18 @@
 ---
 # Systemd services configuration
 
+- name: Reload systemd daemon
+  become: true
+  systemd:
+    daemon_reload: true
+
 - name: Enable bluetooth service
   become: true
   systemd:
     name: bluetooth
     enabled: true
     state: started
+  ignore_errors: true
 
 - name: Enable pipewire user services
   systemd:
@@ -44,6 +50,7 @@
     - name: Enable ufw
       ufw:
         state: enabled
+  ignore_errors: true
 
 - name: Enable plocate timer
   become: true
