@@ -1,6 +1,12 @@
 ---
 # ZSH setup with Oh My Zsh and plugins
 
+- name: Install zsh
+  become: true
+  pacman:
+    name: zsh
+    state: present
+
 - name: Check if Oh My Zsh is installed
   stat:
     path: "{{ user_home }}/.oh-my-zsh"
