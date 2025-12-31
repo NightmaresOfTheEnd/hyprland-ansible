@@ -71,10 +71,9 @@ base_packages:
   - plocate
   - power-profiles-daemon
 
-  # Display Manager
-  - sddm
-  - qt5-graphicaleffects
-  - qt5-quickcontrols2
+  # Display Manager (Wayland-native)
+  - greetd
+  - greetd-tuigreet
 
   # Fonts
   - noto-fonts

@@ -57,15 +57,17 @@
           *** REBOOT NOW: sudo reboot ***
 
           After reboot:
-            1. SDDM login screen will appear
-            2. Select 'Hyprland' from session dropdown
-            3. Enter your password and login
+            1. tuigreet login screen will appear
+            2. Press F2 to select session -> choose 'Hyprland'
+            3. Enter username and password
 
           Keybindings (default):
             - SUPER + Enter: Terminal (ghostty)
-            - SUPER + D: App launcher (wofi)
+            - SUPER + Space: App launcher (wofi)
             - SUPER + Q: Close window
+            - SUPER + SHIFT + L: Lock screen (hyprlock)
             - SUPER + 1-9: Switch workspace
 
           Config location: ~/.config/hypr/
+          Lock screen: hyprlock (already configured)
           ============================================

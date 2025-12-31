@@ -105,40 +105,32 @@
     insertafter: "session"
   when: pam_login.stat.exists
 
-- name: Check if SDDM exists
-  shell: systemctl list-unit-files sddm.service
-  register: sddm_exists
+- name: Check if greetd exists
+  shell: systemctl list-unit-files greetd.service
+  register: greetd_exists
   changed_when: false
   failed_when: false
 
-- name: Enable SDDM display manager (if installed)
-  become: true
-  systemd:
-    name: sddm
-    enabled: true
-  when: sddm_exists.rc == 0
-
-- name: Create SDDM config directory
-  become: true
-  file:
-    path: /etc/sddm.conf.d
-    state: directory
-    mode: '0755'
-  when: sddm_exists.rc == 0
-
-- name: Configure SDDM for Wayland
+- name: Configure greetd
   become: true
   copy:
-    dest: /etc/sddm.conf.d/10-wayland.conf
+    dest: /etc/greetd/config.toml
     content: |
-      [General]
-      DisplayServer=wayland
-      GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
+      [terminal]
+      vt = 1
 
-      [Wayland]
-      CompositorCommand=kwin_wayland --no-lockscreen --inputmethod qtvirtualkeyboard
+      [default_session]
+      command = "tuigreet --time --remember --remember-session --sessions /usr/share/wayland-sessions"
+      user = "greeter"
     mode: '0644'
-  when: sddm_exists.rc == 0
+  when: greetd_exists.rc == 0
+
+- name: Enable greetd display manager
+  become: true
+  systemd:
+    name: greetd
+    enabled: true
+  when: greetd_exists.rc == 0
 
 - name: Display services notice
   debug:
@@ -150,7 +142,7 @@
         - Firewall (ufw): enabled with default deny
         - File indexing (plocate): enabled
         - GNOME Keyring: configured
-        - SDDM display manager: enabled
+        - greetd display manager: enabled
 
       REBOOT YOUR SYSTEM to start the graphical login!
-      After reboot, select 'Hyprland' session in SDDM.
+      Use arrow keys to select 'Hyprland' session in tuigreet.
