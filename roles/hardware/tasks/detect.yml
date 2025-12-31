@@ -4,8 +4,8 @@
 - name: Detect NVIDIA GPU
   shell: lspci | grep -i nvidia
   register: nvidia_check
-  ignore_errors: true
   changed_when: false
+  failed_when: false
 
 - name: Set NVIDIA GPU fact
   set_fact:
@@ -14,8 +14,8 @@
 - name: Detect AMD GPU
   shell: lspci | grep -i 'amd.*vga\|radeon'
   register: amd_check
-  ignore_errors: true
   changed_when: false
+  failed_when: false
 
 - name: Set AMD GPU fact
   set_fact:
@@ -24,8 +24,8 @@
 - name: Detect Intel GPU
   shell: lspci | grep -i 'intel.*vga\|intel.*graphics'
   register: intel_check
-  ignore_errors: true
   changed_when: false
+  failed_when: false
 
 - name: Set Intel GPU fact
   set_fact:

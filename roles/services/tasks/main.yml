@@ -6,13 +6,19 @@
   systemd:
     daemon_reload: true
 
+- name: Check if bluetooth service exists
+  shell: systemctl list-unit-files bluetooth.service
+  register: bluetooth_exists
+  changed_when: false
+  failed_when: false
+
 - name: Enable bluetooth service
   become: true
   systemd:
     name: bluetooth
     enabled: true
     state: started
-  ignore_errors: true
+  when: bluetooth_exists.rc == 0
 
 - name: Enable pipewire user services
   systemd:
@@ -24,7 +30,13 @@
     - pipewire.service
     - pipewire-pulse.service
     - wireplumber.service
-  ignore_errors: true
+  failed_when: false
+
+- name: Check if power-profiles-daemon exists
+  shell: systemctl list-unit-files power-profiles-daemon.service
+  register: ppd_exists
+  changed_when: false
+  failed_when: false
 
 - name: Enable power-profiles-daemon
   become: true
@@ -32,10 +44,17 @@
     name: power-profiles-daemon
     enabled: true
     state: started
-  ignore_errors: true
+  when: ppd_exists.rc == 0
+
+- name: Check if ufw is installed
+  shell: command -v ufw
+  register: ufw_exists
+  changed_when: false
+  failed_when: false
 
 - name: Configure firewall (ufw)
   become: true
+  when: ufw_exists.rc == 0
   block:
     - name: Set ufw default deny incoming
       ufw:
@@ -50,7 +69,12 @@
     - name: Enable ufw
       ufw:
         state: enabled
-  ignore_errors: true
+
+- name: Check if plocate timer exists
+  shell: systemctl list-unit-files plocate-updatedb.timer
+  register: plocate_exists
+  changed_when: false
+  failed_when: false
 
 - name: Enable plocate timer
   become: true
@@ -58,7 +82,12 @@
     name: plocate-updatedb.timer
     enabled: true
     state: started
-  ignore_errors: true
+  when: plocate_exists.rc == 0
+
+- name: Check if PAM login file exists
+  stat:
+    path: /etc/pam.d/login
+  register: pam_login
 
 - name: Configure PAM for gnome-keyring
   become: true
@@ -66,7 +95,7 @@
     path: /etc/pam.d/login
     line: "auth       optional     pam_gnome_keyring.so"
     insertafter: "auth"
-  ignore_errors: true
+  when: pam_login.stat.exists
 
 - name: Configure PAM session for gnome-keyring
   become: true
@@ -74,14 +103,20 @@
     path: /etc/pam.d/login
     line: "session    optional     pam_gnome_keyring.so auto_start"
     insertafter: "session"
-  ignore_errors: true
+  when: pam_login.stat.exists
+
+- name: Check if SDDM exists
+  shell: systemctl list-unit-files sddm.service
+  register: sddm_exists
+  changed_when: false
+  failed_when: false
 
 - name: Enable SDDM display manager (if installed)
   become: true
   systemd:
     name: sddm
     enabled: true
-  ignore_errors: true
+  when: sddm_exists.rc == 0
 
 - name: Display services notice
   debug:

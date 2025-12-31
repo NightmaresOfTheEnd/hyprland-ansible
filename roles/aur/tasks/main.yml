@@ -4,8 +4,8 @@
 - name: Check if paru is installed
   shell: command -v paru
   register: paru_check
-  ignore_errors: true
   changed_when: false
+  failed_when: false
 
 - name: Install paru
   when: paru_check.rc != 0
@@ -69,11 +69,11 @@
   shell: paru -S --noconfirm --needed {{ item }}
   loop: "{{ aur_packages }}"
   register: aur_install
-  ignore_errors: true
-  changed_when: "'installing' in aur_install.stdout or 'upgrading' in aur_install.stdout"
+  failed_when: false
+  changed_when: "'installing' in (aur_install.stdout | default('')) or 'upgrading' in (aur_install.stdout | default(''))"
 
 - name: List failed AUR packages
   debug:
     msg: "Failed to install: {{ item.item }}"
   loop: "{{ aur_install.results }}"
-  when: item.failed | default(false)
+  when: item.rc != 0
