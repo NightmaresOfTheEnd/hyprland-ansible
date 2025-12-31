@@ -28,10 +28,22 @@
         dest: "{{ paru_temp.path }}/paru-bin"
         depth: 1
 
-    - name: Build and install paru
-      shell: makepkg -si --noconfirm
+    - name: Build paru
+      shell: makepkg --noconfirm
       args:
         chdir: "{{ paru_temp.path }}/paru-bin"
+
+    - name: Find built package
+      find:
+        paths: "{{ paru_temp.path }}/paru-bin"
+        patterns: "*.pkg.tar.zst"
+      register: paru_pkg
+
+    - name: Install paru
+      become: true
+      pacman:
+        name: "{{ paru_pkg.files[0].path }}"
+        state: present
 
     - name: Cleanup temp directory
       file:
