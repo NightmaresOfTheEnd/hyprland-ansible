@@ -125,6 +125,13 @@
     mode: '0644'
   when: greetd_exists.rc == 0
 
+- name: Remove existing display-manager symlink
+  become: true
+  file:
+    path: /etc/systemd/system/display-manager.service
+    state: absent
+  when: greetd_exists.rc == 0
+
 - name: Enable greetd display manager
   become: true
   systemd:
