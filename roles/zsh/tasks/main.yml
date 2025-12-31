@@ -118,12 +118,6 @@
     backup: true
     force: false
 
-- name: Create starship config directory
-  file:
-    path: "{{ user_home }}/.config/starship"
-    state: directory
-    mode: '0755'
-
 - name: Deploy starship configuration
   copy:
     dest: "{{ user_home }}/.config/starship.toml"

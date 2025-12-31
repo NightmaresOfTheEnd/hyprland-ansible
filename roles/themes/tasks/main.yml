@@ -1,21 +1,6 @@
 ---
 # Dynamic theming setup
 
-- name: Create dotfiles directory structure
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: '0755'
-  loop:
-    - "{{ user_home }}/.local/share/dotfiles"
-    - "{{ user_home }}/.local/share/dotfiles/current"
-    - "{{ user_home }}/.local/share/dotfiles/themes"
-    - "{{ user_home }}/.local/share/dotfiles/bin"
-    - "{{ user_home }}/.local/bin"
-    - "{{ user_home }}/.config/btop/themes"
-    - "{{ user_home }}/.config/nvim/lua/plugins"
-    - "{{ user_home }}/Pictures/wallpapers"
-
 - name: Copy all themes
   copy:
     src: themes/

@@ -21,12 +21,21 @@
     mode: '0755'
   loop:
     - hypr
+    - hypr/conf
+    - hypr/scripts
     - waybar
     - wofi
     - mako
     - btop
+    - btop/themes
     - ghostty
     - nvim
+    - nvim/lua
+    - nvim/lua/plugins
+    - paru
+    - gtk-3.0
+    - gtk-4.0
+    - starship
 
 - name: Ensure local directories exist
   file:
@@ -36,6 +45,10 @@
   loop:
     - .local/bin
     - .local/share
+    - .local/share/dotfiles
+    - .local/share/dotfiles/current
+    - .local/share/dotfiles/themes
+    - .local/share/dotfiles/bin
     - .local/state
     - Pictures/wallpapers
     - Pictures/screenshots

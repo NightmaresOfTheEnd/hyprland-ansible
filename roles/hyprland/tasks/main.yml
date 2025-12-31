@@ -1,15 +1,6 @@
 ---
 # Hyprland configuration setup
 
-- name: Create Hyprland config directories
-  file:
-    path: "{{ user_home }}/.config/hypr/{{ item }}"
-    state: directory
-    mode: '0755'
-  loop:
-    - conf
-    - scripts
-
 - name: Deploy main Hyprland configuration
   template:
     src: hyprland.conf.j2
