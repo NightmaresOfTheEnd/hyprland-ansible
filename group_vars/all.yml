@@ -49,13 +49,11 @@ base_packages:
   - pipewire-jack
   - pipewire-pulse
   - wireplumber
-  - wiremix
 
   # Bluetooth
   - bluez
   - bluez-libs
   - bluez-utils
-  - bluetui
 
   # File Management
   - gvfs-dnssd
@@ -81,9 +79,7 @@ base_packages:
   - ttf-jetbrains-mono-nerd
 
   # Appearance
-  - bibata-cursor-theme
   - gnome-themes-extra
-  - yaru-icon-theme
 
   # Media
   - ffmpeg
@@ -141,6 +137,14 @@ aur_packages:
 
   # Browser
   - zen-browser-bin
+
+  # Appearance (AUR)
+  - bibata-cursor-theme
+  - yaru-icon-theme
+
+  # Audio/Bluetooth (AUR)
+  - wiremix
+  - bluetui
 
 nvidia_packages:
   - nvidia
