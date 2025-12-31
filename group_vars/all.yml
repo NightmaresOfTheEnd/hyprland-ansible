@@ -71,6 +71,11 @@ base_packages:
   - plocate
   - power-profiles-daemon
 
+  # Display Manager
+  - sddm
+  - qt5-graphicaleffects
+  - qt5-quickcontrols2
+
   # Fonts
   - noto-fonts
   - noto-fonts-emoji

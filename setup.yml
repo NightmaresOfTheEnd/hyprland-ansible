@@ -54,8 +54,18 @@
             - GPU: {{ 'NVIDIA' if has_nvidia_gpu else 'AMD/Intel' }}
             - Type: {{ hardware_type | default('desktop') }}
 
-          Next steps:
-            1. Log out and select Hyprland session
-            2. Review configs in ~/.config/hypr/
-            3. Customize to your preferences
+          *** REBOOT NOW: sudo reboot ***
+
+          After reboot:
+            1. SDDM login screen will appear
+            2. Select 'Hyprland' from session dropdown
+            3. Enter your password and login
+
+          Keybindings (default):
+            - SUPER + Enter: Terminal (ghostty)
+            - SUPER + D: App launcher (wofi)
+            - SUPER + Q: Close window
+            - SUPER + 1-9: Switch workspace
+
+          Config location: ~/.config/hypr/
           ============================================

@@ -118,6 +118,28 @@
     enabled: true
   when: sddm_exists.rc == 0
 
+- name: Create SDDM config directory
+  become: true
+  file:
+    path: /etc/sddm.conf.d
+    state: directory
+    mode: '0755'
+  when: sddm_exists.rc == 0
+
+- name: Configure SDDM for Wayland
+  become: true
+  copy:
+    dest: /etc/sddm.conf.d/10-wayland.conf
+    content: |
+      [General]
+      DisplayServer=wayland
+      GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
+
+      [Wayland]
+      CompositorCommand=kwin_wayland --no-lockscreen --inputmethod qtvirtualkeyboard
+    mode: '0644'
+  when: sddm_exists.rc == 0
+
 - name: Display services notice
   debug:
     msg: |
@@ -128,6 +150,7 @@
         - Firewall (ufw): enabled with default deny
         - File indexing (plocate): enabled
         - GNOME Keyring: configured
+        - SDDM display manager: enabled
 
-      Note: You may need to log out and back in for
-      user services to take effect.
+      REBOOT YOUR SYSTEM to start the graphical login!
+      After reboot, select 'Hyprland' session in SDDM.
